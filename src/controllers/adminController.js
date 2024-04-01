@@ -5,6 +5,8 @@ const argon2 = require("argon2")
 const jwt = require("jsonwebtoken")
 const keyMap = require("../utils/constant/keyMap")
 const classService = require("../services/classService")
+const questionService = require("../services/questionService")
+const examService = require("../services/examService")
 
 class adminController {
     getAllUsers = async (req, res) => {
@@ -281,8 +283,156 @@ class adminController {
             if (!checkDelete) {
                 return res.status(200).json({
                     result: false,
-                    messageEN: "Delete data  successfully",
-                    messageVI: "Xóa dữ liệu thành công",
+                    messageEN: "Delete data  failed",
+                    messageVI: "Xóa dữ liệu thất bại",
+                })
+            }
+            return res.status(200).json({
+                result: true,
+                messageEN: "Delete data  successfully",
+                messageVI: "Xóa dữ liệu thành công",
+            })
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                result: false,
+                message: "Có lỗi từ phía server",
+                // error: error.message
+            })
+        }
+    }
+    getAllQuestion = async (req, res) => {
+        try {
+            // let { parentsId } = req.query
+            // let userId = req.userId
+            // if (!parentsId) {
+            //     return res.status(200).json({
+            //         result: false,
+            //         messageEN: "Invalid information",
+            //         messageVI: "Thiếu thông tin chuyền lên"
+            //     })
+            // }
+
+            let data = await questionService.getAllQuestion()
+
+            return res.status(200).json({
+                result: true,
+                messageEN: "get data  successfully",
+                messageVI: "Lấy dữ liệu thành công",
+                data
+            })
+        } catch (error) {
+            console.log("sss", error)
+            return res.status(400).json({
+                result: false,
+                message: "Có lỗi từ phía server",
+                // error: error.message
+            })
+        }
+    }
+    createOneQuestion = async (req, res) => {
+        console.log(">>> chay vao dau", req)
+        try {
+            let { teacherId ,questionPrompt, options, answer, typeId, level } = req.body
+            if (!teacherId || !questionPrompt || !options || !answer || !typeId || !level) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Invalid information",
+                    messageVI: "Thiếu thông tin chuyền lên"
+                })
+            }
+
+            let checkQuestionExists = await questionService.isQuestionExists({ teacherId, questionPrompt, level,type: keyMap.function.CREATE })
+            if (checkQuestionExists) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Question is already exists",
+                    messageVI: "Câu hỏi đã tồn tại"
+                })
+            }
+            let checkCreateNewClass = await questionService.createOneQuestion({teacherId ,questionPrompt, options, answer, typeId, level})
+            if (!checkCreateNewClass) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Create new question failed",
+                    messageVI: "Tạo mới câu hỏi thất bại"
+                })
+            }
+            return res.status(200).json({
+                result: true,
+                messageEN: "Create new question successfully",
+                messageVI: "Tạo mới câu hỏi thành công",
+            })
+
+            
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                result: false,
+                message: "Có lỗi từ phía server",
+            })
+        }
+    }
+    updateOneQuestion = async (req, res) => {
+        try {
+            let {questionId, teacherId ,questionPrompt, options, answer, typeId, level } = req.body
+        console.log(">>> chec", questionId)
+            
+            let userId = req.userId
+            if ( !questionId || !teacherId || !questionPrompt || !options || !answer || !typeId || !level) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Invalid information",
+                    messageVI: "Thiếu thông tin chuyền lên"
+                })
+            }
+            let checkExist = await questionService.isQuestionExists({ questionPrompt, level , teacherId: teacherId, type: keyMap.function.UPDATE, questionSelectedId: questionId })
+            if (checkExist) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Name question already exists",
+                    messageVI: "Câu hỏi này đã tồn tại",
+                })
+            }
+            let checkUpdate = await questionService.updateOneQuestion({ questionSelectedId : questionId, teacherId, questionPrompt, options, answer, typeId, level })
+            if (!checkUpdate) {
+                return res.status(200).json({
+                    result: true,
+                    messageEN: "Update information of question failed",
+                    messageVI: "Cập nhật thông tin câu hỏi thất bại",
+                })
+            }
+            return res.status(200).json({
+                result: true,
+                messageEN: "Update information of question successfully",
+                messageVI: "Cập nhật thông tin câu hỏi thành công",
+            })
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                result: false,
+                message: "Có lỗi từ phía server",
+                // error: error.message
+            })
+        }
+    }
+    deleteOneQuestion = async (req, res) => {
+        try {
+            let { questionId } = req.query
+            if (!questionId) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Invalid information",
+                    messageVI: "Thiếu thông tin chuyền lên"
+                })
+            }
+
+            let checkDelete = await questionService.deleteOneQuestionById({ questionSelectedId: questionId })
+            if (!checkDelete) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Delete data  failed",
+                    messageVI: "Xóa dữ liệu thất bại",
                 })
             }
             return res.status(200).json({
@@ -300,6 +450,95 @@ class adminController {
         }
     }
 
+
+    getServiceAllExam = async (req, res) => {
+        try {
+            // let { parentsId } = req.query
+            // let userId = req.userId
+            // if (!parentsId) {
+            //     return res.status(200).json({
+            //         result: false,
+            //         messageEN: "Invalid information",
+            //         messageVI: "Thiếu thông tin chuyền lên"
+            //     })
+            // }
+            console.log(">>> chay vao day")
+
+            let data = await examService.getAllFindExam()
+
+            return res.status(200).json({
+                result: true,
+                messageEN: "get data  successfully",
+                messageVI: "Lấy dữ liệu thành công",
+                data
+            })
+        } catch (error) {
+            return res.status(400).json({
+                result: false,
+                message: "Có lỗi từ phía server",
+                // error: error.message
+            })
+        }
+    }
+    searchClassByName = async (req, res) => {
+        try {
+            let { search } = req.query
+            console.log(">>> check searck", search)
+            let userId = req.userId
+            if (!search) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Invalid information",
+                    messageVI: "Thiếu thông tin chuyền lên"
+                })
+            }
+
+            let data = await classService.searchClassByName({search})
+            return res.status(200).json({
+                result: true,
+                messageEN: "get data  successfully",
+                messageVI: "Lấy dữ liệu thành công",
+                data
+            })
+        } catch (error) {
+            console.log("sss", error)
+            return res.status(400).json({
+                result: false,
+                message: "Có lỗi từ phía server",
+            })
+        }
+    }
+    getQuestionsTeacher = async (req, res) => {
+        try {
+            let { typeId, level, teacherId } = req.query
+            let userId = req.userId
+            if (!typeId || !level || !teacherId) {
+                return res.status(200).json({
+                    result: false,
+                    messageEN: "Invalid information",
+                    messageVI: "Thiếu thông tin chuyền lên"
+                })
+            }
+
+            let data = await questionService.getQuestions({ typeId, level, teacherId })
+
+            return res.status(200).json({
+                result: true,
+                messageEN: "get data  successfully",
+                messageVI: "Lấy dữ liệu thành công",
+                data
+            })
+        } catch (error) {
+            return res.status(400).json({
+                result: false,
+                message: "Có lỗi từ phía server",
+                // error: error.message
+            })
+        }
+    }
+
+
 }
+
 
 module.exports = new adminController()

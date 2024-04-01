@@ -8,6 +8,36 @@ require('dotenv').config()
 class questionService {
     //Create teacherId, questionPrompt, level, type 
     //Update teacherId, questionPrompt, level, type, questionSelectedId
+    getAllQuestion = async () => {
+        try {
+            let questionFindAll = await db.Question.findAll({
+                include: [{
+                    model: db.User,
+                    as: "teacherOfQuestionData",
+                    attributes: ["id", "firstName","lastName","phoneNumber", "email"]
+                }]
+            })
+            return questionFindAll
+        } catch (error) {
+            throw error
+            
+        }
+    }
+    createOneQuestion = async ({ teacherId, questionPrompt, options, answer, typeId, level }) => {
+        try {
+            let updateQuestion = await db.Question.create({
+                teacherId: teacherId,
+                questionPrompt: questionPrompt,
+                options: options,
+                answer: answer,
+                typeId: typeId,
+                level: level
+            })
+            return updateQuestion
+        } catch (error) {
+            throw error
+        }
+    }
     isQuestionExists = async ({ teacherId, questionPrompt, level, type, questionSelectedId }) => {
         try {
             let questionFind
@@ -30,7 +60,7 @@ class questionService {
                         }
                     }
                 })
-                console.log(questionFind, "ssssssssssss")
+                console.log(questionFind)
             }
             return questionFind
         } catch (error) {
@@ -91,7 +121,7 @@ class questionService {
         }
     }
 
-    deleteOneQuestionById = async (questionSelectedId) => {
+    deleteOneQuestionById = async ({questionSelectedId}) => {
         try {
             let checkDelete = await db.Question.destroy({
                 where: { id: questionSelectedId }

@@ -38,6 +38,15 @@ class examService {
             throw error
         }
     }
+    getAllFindExam = async () => {
+        try {
+            let examFindAll = await db.Exam.findAll()
+            return examFindAll
+        } catch (error) {
+            throw error
+            
+        }
+    }
 
     // getQuestions = async ({ typeId, level, search, teacherId }) => {
     //     try {

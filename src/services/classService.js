@@ -120,16 +120,23 @@ class classService {
     }
 
     searchClassByName = async ({ search, classIsJoined }) => {
+        console.log('>>> check dat', search)
         try {
+            let options = {}
+            if(classIsJoined){
+                options.name = {
+                    [Op.iLike]: `%${search}%`
+                }
+                options.id = {
+                    [Op.notIn]: classIsJoined
+                }
+            }else{
+                options.name = {
+                    [Op.iLike]: `%${search}%`
+                }
+            }
             let data = await db.Class.findAll({
-                where: {
-                    name: {
-                        [Op.iLike]: `%${search}%`
-                    },
-                    id: {
-                        [Op.notIn]: classIsJoined
-                    }
-                },
+                where: options,
                 include: [
                     {
                         model: db.User,

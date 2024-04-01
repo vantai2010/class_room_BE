@@ -109,4 +109,13 @@ router.post("/create-new-class", checkAdmin, uploadImage.single("image"), adminC
 router.put("/create-new-class", checkAdmin, uploadImage.single("newImage"), adminController.updateClass)
 router.delete("/delete-one-class", checkAdmin, adminController.deleteOneClass)
 
+router.get("/get-all-question", checkAdmin, adminController.getAllQuestion)
+router.post("/create-one-question", checkAdmin, adminController.createOneQuestion)
+router.put("/update-one-question", checkAdmin, adminController.updateOneQuestion)
+router.delete("/delete-one-question", checkAdmin, adminController.deleteOneQuestion)
+
+router.get("/get-all-exam", checkAdmin, adminController.getServiceAllExam)
+router.get("/search-class-by-name", checkAdmin, adminController.searchClassByName)
+router.get("/get-question-tearcher", checkAdmin, adminController.getQuestionsTeacher)
+
 module.exports = router

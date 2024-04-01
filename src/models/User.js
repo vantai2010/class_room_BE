@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       // User.hasMany(models.Author, { foreignKey: "genderId", as: 'genderAuthorData' })
       // User.hasMany(models.Book, { foreignKey: "categoryId", as: 'categoryData' })
       User.hasMany(models.Exam, { foreignKey: "teacherId", as: 'teacherExamData' })
+      User.hasMany(models.Question, { foreignKey: "teacherId", as: 'teacherOfQuestionData' })
       User.hasMany(models.Student_Class, { foreignKey: "studentId", as: "studentClassData" })
       User.hasMany(models.Relationship, { foreignKey: "parentsId", as: "parentOfStudentData" })
       User.hasMany(models.Relationship, { foreignKey: "studentId", as: "studentOfParentData" })
